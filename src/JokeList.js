@@ -1,6 +1,9 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import './JokeList.css'
+import Joke from './Joke'
+import uuid from 'uuid/v4'
+
 const API_URL = "https://icanhazdadjoke.com/"
 class JokeList extends Component {
     static defaultProps = {
@@ -13,6 +16,7 @@ class JokeList extends Component {
             jokes: [],
 
         }
+        this.handleVote = this.handleVote.bind(this)
     }
     async componentDidMount() {
         //Load jokes
@@ -21,11 +25,17 @@ class JokeList extends Component {
         while (jokes.length < this.props.numJokesToGet) {
             let response = await axios.get(API_URL, 
             {headers: { Accept: "application/json"}}) // wants json version instead standard html version
-            jokes.push(response.data.joke)
-        }
-        
+            jokes.push({id: uuid(), joke: response.data.joke, votes: 0})
+        }      
         this.setState({jokes: jokes})
-    
+    }
+
+    handleVote(id, delta) {
+        console.log("got here")
+        //loops over jokes and comapres joke id to passed id and returns an object where it updates the vote value
+        this.setState(st => ({
+            jokes: st.jokes.map(j => j.id === id ? {...j, votes: j.votes + delta}: j)
+        }))
     }
 
   render() {
@@ -40,8 +50,8 @@ class JokeList extends Component {
       </div>
 
         <div className="JokeList-jokes">
-            {this.state.jokes.map(joke => (
-                <div>{joke}</div>
+            {this.state.jokes.map(j => (
+                <Joke votes={j.votes} text={j.joke} key={j.id} id={j.id} voting={this.handleVote} />
             ))}
             </div>
       </div>
