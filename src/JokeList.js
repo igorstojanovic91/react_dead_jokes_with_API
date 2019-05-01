@@ -17,9 +17,12 @@ class JokeList extends Component {
             //clear localStorage in Browser with: window.localStorage.clear()
             loading: false
         }
+
         this.handleVote = this.handleVote.bind(this)
         this.getJokes = this.getJokes.bind(this)
         this.handleClick = this.handleClick.bind(this)
+        //new set of seen jokes
+        this.seenJokes = new Set(this.state.jokes.map(j => j.joke));
     }
      componentDidMount() {
         //Load jokes
@@ -28,11 +31,17 @@ class JokeList extends Component {
     }
     async getJokes() {
         let jokes = []
-
+        try{ 
         while (jokes.length < this.props.numJokesToGet) {
             let response = await axios.get(API_URL, 
             {headers: { Accept: "application/json"}}) // wants json version instead standard html version
-            jokes.push({id: uuid(), joke: response.data.joke, votes: 0})
+            let newJoke = response.data.joke
+            if(!this.seenJokes.has(newJoke)) { //compares it to the set of values defined in constructor and if not included it is added to local storage
+                jokes.push({id: uuid(), joke: newJoke, votes: 0})
+            } else {
+                console.log("found a duplicate")
+                console.log(newJoke);
+            }
         }      
 
         this.setState(
@@ -43,6 +52,11 @@ class JokeList extends Component {
             () =>
               window.localStorage.setItem("jokes", JSON.stringify(this.state.jokes))
             );
+        } catch (error) {
+            alert(`Couldn't load data! ${error}`)
+            this.setState({loading: false})
+
+        }
     }
 
     handleClick() {
