@@ -55,7 +55,6 @@ class JokeList extends Component {
         } catch (error) {
             alert(`Couldn't load data! ${error}`)
             this.setState({loading: false})
-
         }
     }
 
@@ -71,7 +70,7 @@ class JokeList extends Component {
         () => window.localStorage.setItem("jokes", JSON.stringify(this.state.jokes) //is run after state is set
         ))
     }
-
+    
   render() {
       if(this.state.loading) {
           return (
@@ -81,6 +80,8 @@ class JokeList extends Component {
               </div>
           )
       }
+        //Sotring array from high to bottom at votes  
+      let jokes = this.state.jokes.sort((a, b) => b.votes - a.votes)
     return (
       <div className="JokeList">
       <div className="JokeList-sidebar">
@@ -92,7 +93,7 @@ class JokeList extends Component {
       </div>
 
         <div className="JokeList-jokes">
-            {this.state.jokes.map(j => (
+            {jokes.map(j => (
                 <Joke votes={j.votes} text={j.joke} key={j.id} id={j.id} voting={this.handleVote} />
             ))}
             </div>
