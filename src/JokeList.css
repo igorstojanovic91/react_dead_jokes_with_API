@@ -43,3 +43,7 @@
     width: 70%;
     overflow: scroll; /* sets overflow to scroll when there are too many elements*/
 }
+.JokeList-spinner {
+    color: white;
+    text-align: center;
+}
