@@ -13,13 +13,18 @@ class JokeList extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            jokes: [],
+            jokes: JSON.parse(window.localStorage.getItem("jokes") || "[]") //localStorage if not empty, else empty array
 
         }
         this.handleVote = this.handleVote.bind(this)
+        this.getJokes = this.getJokes.bind(this)
     }
-    async componentDidMount() {
+     componentDidMount() {
         //Load jokes
+        if(this.state.jokes.length === 0) this.getJokes() 
+        
+    }
+    async getJokes() {
         let jokes = []
 
         while (jokes.length < this.props.numJokesToGet) {
@@ -28,10 +33,15 @@ class JokeList extends Component {
             jokes.push({id: uuid(), joke: response.data.joke, votes: 0})
         }      
         this.setState({jokes: jokes})
+
+        //Saved to the window object as stirng, takes 2 params which are both strings
+        window.localStorage.setItem(
+            "jokes",
+            JSON.stringify(jokes)
+        )
     }
 
     handleVote(id, delta) {
-        console.log("got here")
         //loops over jokes and comapres joke id to passed id and returns an object where it updates the vote value
         this.setState(st => ({
             jokes: st.jokes.map(j => j.id === id ? {...j, votes: j.votes + delta}: j)
